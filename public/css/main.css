@@ -1,0 +1,40 @@
+:root {
+  --main-color: #fff;
+  --body-back-color: #f2f2f2;
+}
+
+body {
+  background: var(--body-back-color);
+}
+
+.message-wrap {
+  display: grid;
+  justify-content: center;
+  position: fixed;
+  top: 10px;
+  width: 100%;
+  height: 40px;
+  text-align: center;
+  z-index: 10;
+}
+
+.message {
+  width: max-content;
+  border-radius: 10px;
+  padding: 10px 15px;
+  text-align: center;
+  background: rgb(71, 168, 206);
+  color: #fff;
+}
+
+.passengers-table {
+  margin: 10px auto;
+}
+
+.passengers-table__caption {
+  font-size: 22px;
+}
+
+.passengers-table thead tr th {
+  font-weight: normal;
+}

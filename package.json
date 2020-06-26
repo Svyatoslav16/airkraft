@@ -1,0 +1,26 @@
+{
+  "name": "airkraft",
+  "version": "1.0.0",
+  "description": "Тестовое задание",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "test": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Svyatoslav16/airkraft.git"
+  },
+  "author": "Svyatoslav Maryuha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Svyatoslav16/airkraft/issues"
+  },
+  "homepage": "https://github.com/Svyatoslav16/airkraft#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
