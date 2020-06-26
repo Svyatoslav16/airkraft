@@ -1,137 +1,101 @@
-(async function() {
-  const body = document.getElementsByTagName('body')[0];
+let passengersData = [];
 
-  // Динамическое формирование таблицы. 
-  const table = document.createElement('table');
-    table.className = 'passengers-table';
+const searchInput = document.getElementsByClassName('search__input')[0];
 
-  const caption = document.createElement('caption');
-    caption.className = 'passengers-table__caption';
-    caption.innerText = 'Пассажиры Титаника'
+const tbody = document.getElementsByTagName('tbody')[0];
 
-  const thead = document.createElement('thead');
-    thead.className = 'passengers-table__head';
-
-  // Заголовки для ячеек таблицы
-  const thNameArray = [
-    {
-      thLabel: 'class',
-      passengerPropertyName: 'Класс'
-    },
-    {
-      thLabel: 'survived',
-      passengerPropertyName: 'Выживший'
-    },
-    {
-      thLabel: 'name',
-      passengerPropertyName: 'ФИО'
-    },
-    {
-      thLabel: 'gender',
-      passengerPropertyName: 'Пол'
-    },
-    {
-      thLabel: 'age',
-      passengerPropertyName: 'Возраст'
-    },
-    {
-      thLabel: 'sibsp',
-      passengerPropertyName: 'Sibsp'
-    },
-    {
-      thLabel: 'parch',
-      passengerPropertyName: 'Parch'
-    },
-    {
-      thLabel: 'ticket',
-      passengerPropertyName: 'Билет'
-    },
-    {
-      thLabel: 'fare',
-      passengerPropertyName: 'Плата за проезд'
-    },
-    {
-      thLabel: 'cabin',
-      passengerPropertyName: 'Каюта'
-    },
-    {
-      thLabel: 'embarked',
-      passengerPropertyName: 'Embarked'
-    },
-    {
-      thLabel: 'boat',
-      passengerPropertyName: 'Шлюпка'
-    },
-    {
-      thLabel: 'home.dest',
-      passengerPropertyName: 'Адрес'
-    }
-  ];
-
-  const theadTr = document.createElement('tr');
-
-  for(let i = 0; i < thNameArray.length; i++) {
-    let th = document.createElement('th');
-      th.dataset.label = thNameArray[i].thLabel;
-      th.innerText = thNameArray[i].passengerPropertyName;
-
-    theadTr.append(th);
+// Заголовки для ячеек таблицы
+const thNameArray = [
+  {
+    thLabel: 'class',
+    passengerPropertyName: 'Класс'
+  },
+  {
+    thLabel: 'survived',
+    passengerPropertyName: 'Выживший'
+  },
+  {
+    thLabel: 'name',
+    passengerPropertyName: 'ФИО'
+  },
+  {
+    thLabel: 'gender',
+    passengerPropertyName: 'Пол'
+  },
+  {
+    thLabel: 'age',
+    passengerPropertyName: 'Возраст'
+  },
+  {
+    thLabel: 'ticket',
+    passengerPropertyName: 'Билет'
+  },
+  {
+    thLabel: 'cabin',
+    passengerPropertyName: 'Каюта'
+  },
+  {
+    thLabel: 'boat',
+    passengerPropertyName: 'Шлюпка'
+  },
+  {
+    thLabel: 'home.dest',
+    passengerPropertyName: 'Адрес'
   }
+];
 
-  thead.append(theadTr);
-
-  const tbody = document.createElement('tbody');
-    tbody.className = 'passengers-table__body';
-
+(async function() {
   // Начальные данные для таблицы
-  const initialPassengers = await getPassengersData(0, 100) || [];
+  const initialPassengers = await getPassengersData(0, 5) || [];
 
-  // console.log(initialPassengers);
+  renderPassengersData(initialPassengers, thNameArray, tbody, true);
+})();
 
-  renderPassengersData(initialPassengers, thNameArray, tbody);
-
-  table.append(caption);
-  table.append(thead);
-  table.append(tbody);
-
-  body.append(table);
-
+// Когда пользователь доскроллил до конца таблицы подгружаем ещё данные
+window.addEventListener("scroll", async () => {
   let windowScrolling = false;
 
-  // Когда пользователь доскроллил до конца таблицы подгружаем ещё данные
-  window.addEventListener("scroll", () => {
-    setTimeout(async () => {
-      if ( (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight &&
-        windowScrolling === false) {
-          
-        windowScrolling = true;
-        let passengersData = await getPassengersData(document.getElementsByClassName('passengers-table__body')[0].children.length, 200);
-        renderPassengersData(
-          passengersData,
-          thNameArray, 
-          tbody
-        );
+  if ( (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight &&
+    windowScrolling === false) {
+      
+    windowScrolling = true;
+    let passengersDataToAdd = await getPassengersData(document.getElementsByClassName('passengers-table__body')[0].children.length, 50)
+    
+    renderPassengersData(
+      passengersDataToAdd,
+      thNameArray, 
+      tbody,
+      true
+    );
 
-        windowScrolling = false;
-      }
-    }, 1000);
-  });
-})();
+    windowScrolling = false;
+  }
+});
+
+document.getElementsByClassName('search__icon')[0].addEventListener('click', function() {
+  search(searchInput.value);
+});
 
 /** Создание и заполнение записей о пассажирах и добавление их в таблицу
  * Параметры:
  * data - данные пассажиров в виде массива
  * thNameArray - заголовки для ячеек таблицы
  * parentElement - куда будут добавляться сформированные записи
+ * addToPassengersArray - добавлять ли эти данные в массив с пассажирами
  */
-function renderPassengersData(data = [], thNameArray, tbody) {
+function renderPassengersData(data = [], thNameArray, tbody, addToPassengersArray) {
   for (let i = 0; i < data.length; i++) {
     let tr = document.createElement('tr');
 
     for (let j = 0; j < thNameArray.length; j++) {
       let td = document.createElement('td');
         td.innerText = data[i][thNameArray[j].thLabel];
+        td.dataset.label = thNameArray[j].passengerPropertyName;
       tr.append(td);
+    }
+
+    if(addToPassengersArray === true) {
+      passengersData.push(data[i]);
     }
 
     tbody.append(tr);
@@ -176,4 +140,44 @@ async function getPassengersData(startPosition = 0, numberOfRecords = 10) {
   });
 
   return passengers;
+}
+
+/** Поиск записей из таблицы
+ * Параметры:
+ * value - искомое значение
+ */
+function search(value) {
+  if( value.length > 0 ) {
+    let arrayOfMatches = [];
+    for (let i = 0; i < passengersData.length; i++) {
+      Object.keys(passengersData[i]).map(key => {
+        if(`${passengersData[i][key]}`.indexOf(value.trim()) > -1) {
+          if(itemExists(arrayOfMatches, passengersData[i]) === false) {
+            console.log(itemExists(arrayOfMatches, passengersData[i]));
+            arrayOfMatches.push(passengersData[i]);
+          }
+        }
+      });
+    }
+
+    tbody.innerHTML = '';
+
+    renderPassengersData(arrayOfMatches, thNameArray, tbody);
+
+  } else {
+    if( tbody.children.length < passengersData.length ) {
+      tbody.innerHTML = '';
+      renderPassengersData( passengersData, thNameArray, tbody, false, true );
+    }
+  }
+}
+
+function itemExists(arrayOfMatches, duplicate) {
+  for (let i = 0; i < arrayOfMatches.length; i++) {
+    if( JSON.stringify(arrayOfMatches[i]) === JSON.stringify(duplicate) ) {
+      return true;
+    }
+  }
+
+  return false;
 }

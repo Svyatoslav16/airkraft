@@ -3,9 +3,17 @@
   --body-back-color: #f2f2f2;
 }
 
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
 body {
   background: var(--body-back-color);
 }
+
+/* Странное подобие БЭМ, но мне ещё учить и учить его, это скорее попытка сделать по БЭМ */
 
 .message-wrap {
   display: grid;
@@ -23,18 +31,151 @@ body {
   border-radius: 10px;
   padding: 10px 15px;
   text-align: center;
-  background: rgb(71, 168, 206);
-  color: #fff;
+  background: rgb(99, 99, 99);
+  color: rgb(230, 230, 230);
+}
+
+.search-wrap {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background: #d3d3d3;
+  padding: 10px;
+  border-bottom: 1px solid gray;
+}
+
+.search {
+  border: 1px solid gray;
+  border-radius: 10px;
+  padding: 5px 10px;
+  width: 250px;
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  background: #f2f2f2;
+  align-items: center;
+}
+
+.search__input {
+  padding: 5px;
+  border: none;
+  background: transparent;
+}
+
+.search__icon {
+  height: 20px;
+  cursor: pointer;
+}
+
+.search__icon:hover {
+  fill: #666;
 }
 
 .passengers-table {
-  margin: 10px auto;
+  border-spacing: 0;
 }
 
 .passengers-table__caption {
   font-size: 22px;
+  margin: 20px 0 10px 0;
 }
 
-.passengers-table thead tr th {
+.passengers-table__head {
+  position: sticky;
+  top: 59px;
+  background: #d3d3d3;
+  color: rgb(88, 88, 88);
+}
+
+.passengers-table__head tr th {
+  font-size: 18px;
   font-weight: normal;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.passengers-table__body tr td {
+  padding: 10px 0;
+  vertical-align: top;
+  color: rgba(0, 0, 0, .7);
+}
+
+.passengers-table__body tr td:not(:first-child) {
+  padding-right: 5px;
+}
+
+@media (min-width: 750px) {
+  .passengers-table {
+    width: 100%;
+  }
+  .passengers-table__head tr th:not(:last-child) {
+    padding-right: 5px;
+  }
+  
+  .passengers-table__head tr th:first-child,
+  .passengers-table__body tr td:first-child {
+    padding-left: 10px;
+  }
+  
+  .passengers-table__head tr th:last-child,
+  .passengers-table__body tr td:last-child {
+    padding-right: 10px;
+  }
+
+  .passengers-table__body tr:not(:last-child) td {
+    border-top: 1px solid rgba(128, 128, 128, 0.568);
+  }
+
+  .passengers-table__body tr:hover {
+    background: rgba(0, 0, 0, .1);
+  }
+}
+
+@media (max-width: 749px) {
+  .search {
+    margin-left: calc(50% - 105px);
+  }
+
+  .passengers-table {
+    border-collapse: collapse;
+  }
+
+  .passengers-table__head {
+    display: none;
+  }
+
+  .passengers-table__body tr td {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .passengers-table__body tr td:before {
+    content: attr(data-label);
+    float: left;
+    color: black;
+  }
+
+  .passengers-table__body tr td:first-child {
+    border-top: 1px solid rgba(128, 128, 128, 0.815);
+  }
+
+  .passengers-table__body tr:last-child td:last-child {
+    border-bottom: 1px solid rgba(128, 128, 128, 0.801);
+  }
+}
+
+@media (max-width: 749px) and (min-width: 600px) {
+  .passengers-table__body {
+    display: grid;
+    grid-template-columns: 0.4fr 0.4fr;
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 599px) {
+  .passengers-table {
+    margin: 10px auto;
+    padding: 0 5px;
+  }
 }
