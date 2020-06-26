@@ -9,6 +9,14 @@
 	box-sizing: border-box;
 }
 
+button, 
+button:active, 
+button:focus,
+input,
+input:focus {
+    outline: none;
+}
+
 body {
   background: var(--body-back-color);
 }
