@@ -1,5 +1,7 @@
 let passengersData = [];
 
+let searching = false; // Осуществляется ли поиск в данный момент
+
 const searchInput = document.getElementsByClassName('search__input')[0];
 
 const tbody = document.getElementsByTagName('tbody')[0];
@@ -46,7 +48,7 @@ const thNameArray = [
 
 (async function() {
   // Начальные данные для таблицы
-  const initialPassengers = await getPassengersData(0, 5) || [];
+  const initialPassengers = await getPassengersData(0, 30) || [];
 
   renderPassengersData(initialPassengers, thNameArray, tbody, true);
 })();
@@ -56,7 +58,8 @@ window.addEventListener("scroll", async () => {
   let windowScrolling = false;
 
   if ( (window.innerHeight + window.pageYOffset) >= document.body.offsetHeight &&
-    windowScrolling === false) {
+    windowScrolling === false &&
+    searching === false) {
       
     windowScrolling = true;
     let passengersDataToAdd = await getPassengersData(document.getElementsByClassName('passengers-table__body')[0].children.length, 50)
@@ -107,7 +110,7 @@ function renderPassengersData(data = [], thNameArray, tbody, addToPassengersArra
  * startPosition - позиция, с которой будет начинаться поиск в массиве данных
  * numberOfRecords - количество необходимых записей
 */
-async function getPassengersData(startPosition = 0, numberOfRecords = 10) {
+async function getPassengersData(startPosition = 0, numberOfRecords = 40) {
   let passengers = await fetch('/getPassengersData', {
     method: 'POST',
     body: JSON.stringify({
@@ -162,6 +165,8 @@ function search(value) {
 
     tbody.innerHTML = '';
 
+    searching = true;
+
     renderPassengersData(arrayOfMatches, thNameArray, tbody);
 
   } else {
@@ -169,6 +174,8 @@ function search(value) {
       tbody.innerHTML = '';
       renderPassengersData( passengersData, thNameArray, tbody, false, true );
     }
+
+    searching = false;
   }
 }
 
