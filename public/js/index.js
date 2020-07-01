@@ -48,9 +48,24 @@ const thNameArray = [
 
 (async function() {
   // Начальные данные для таблицы
-  const initialPassengers = await getPassengersData(0, 30) || [];
+  const initialPassengers = await getPassengersData(0, 10) || [];
 
   renderPassengersData(initialPassengers, thNameArray, tbody, true);
+
+  /* Если размер окна идентичен или больше тела сайта, то подгружаем ещё данных - это самый простой способ, можно также добавить кнопку, 
+     но т.к. при скролле нет кнопки "Загрузить ещё", то, как по-мне, будет логичнее просто догрузить */
+  if(window.innerHeight >= document.body.offsetHeight) {
+    let passengersDataToAdd = await getPassengersData(document.getElementsByClassName('passengers-table__body')[0].children.length, 50)
+    
+    if(passengersDataToAdd.length > 0) {
+      renderPassengersData(
+        passengersDataToAdd,
+        thNameArray, 
+        tbody,
+        true
+      );
+    }
+  }
 })();
 
 // Когда пользователь доскроллил до конца таблицы подгружаем ещё данные
@@ -64,14 +79,16 @@ window.addEventListener("scroll", async () => {
     windowScrolling = true;
     let passengersDataToAdd = await getPassengersData(document.getElementsByClassName('passengers-table__body')[0].children.length, 50)
     
-    renderPassengersData(
-      passengersDataToAdd,
-      thNameArray, 
-      tbody,
-      true
-    );
+    if(passengersDataToAdd.length > 0) {
+      renderPassengersData(
+        passengersDataToAdd,
+        thNameArray, 
+        tbody,
+        true
+      );
 
-    windowScrolling = false;
+      windowScrolling = false;
+    }
   }
 });
 
@@ -149,26 +166,26 @@ async function getPassengersData(startPosition = 0, numberOfRecords = 40) {
  * Параметры:
  * value - искомое значение
  */
-function search(value) {
+async function search(value) {
   if( value.length > 0 ) {
-    let arrayOfMatches = [];
-    for (let i = 0; i < passengersData.length; i++) {
-      Object.keys(passengersData[i]).map(key => {
-        if(`${passengersData[i][key]}`.indexOf(value.trim()) > -1) {
-          if(itemExists(arrayOfMatches, passengersData[i]) === false) {
-            console.log(itemExists(arrayOfMatches, passengersData[i]));
-            arrayOfMatches.push(passengersData[i]);
-          }
-        }
-      });
-    }
+    let arrayOfMatches = await fetch('/passengersByMatch', {
+      method: 'POST',
+      body: JSON.stringify({
+        value
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then(res => {
+      return res.json();
+    });
 
     tbody.innerHTML = '';
 
     searching = true;
 
     renderPassengersData(arrayOfMatches, thNameArray, tbody);
-
   } else {
     if( tbody.children.length < passengersData.length ) {
       tbody.innerHTML = '';
@@ -177,14 +194,4 @@ function search(value) {
 
     searching = false;
   }
-}
-
-function itemExists(arrayOfMatches, duplicate) {
-  for (let i = 0; i < arrayOfMatches.length; i++) {
-    if( JSON.stringify(arrayOfMatches[i]) === JSON.stringify(duplicate) ) {
-      return true;
-    }
-  }
-
-  return false;
 }
