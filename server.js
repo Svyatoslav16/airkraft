@@ -26,35 +26,39 @@ app.get('/', (req, res) => {
 app.post('/getPassengersData',  (req, res) => {
   if(req.body.startPosition !== undefined &&
     req.body.numberOfRecords) {
-    if(parseInt(req.body.startPosition) + parseInt(req.body.numberOfRecords) <= passengersData.length)
-      res.send(passengersData
-        .slice(req.body.startPosition, 
-          parseInt(req.body.startPosition) + parseInt(req.body.numberOfRecords) 
-        )
-      );
-    else
+    if(+req.body.startPosition + +req.body.numberOfRecords <= passengersData.length) {
+      if(!req.body.isSearch) {
+        res.send(passengersData
+          .slice(req.body.startPosition, 
+            +req.body.startPosition + +req.body.numberOfRecords
+          )
+        );
+      } else if(req.body.isSearch) {
+        if(req.body.value) {
+          let arrayOfMatches = [];
+
+          // Срез данных пассажиров, начиная с заданой позиции
+          let passengersDataSlice = passengersData.slice(+req.body.startPosition);
+
+          for (let i = 0; i < passengersDataSlice.length; i++) {
+            if(arrayOfMatches.length < +req.body.numberOfRecords)
+              Object.keys(passengersDataSlice[i]).map(key => {
+                if(`${passengersDataSlice[i][key]}`.indexOf(req.body.value.trim()) > -1) {
+                  if(itemExists(arrayOfMatches, passengersDataSlice[i]) === false) {
+                    arrayOfMatches.push(passengersDataSlice[i]);
+                  }
+                }
+              });
+          }
+          res.send(arrayOfMatches);
+        } else {
+          res.send([]);
+        }
+      }
+    } else
       res.send([]);
   } else {
     res.sendStatus(400);
-  }
-});
-
-app.post('/passengersByMatch', (req, res) => {
-  if(req.body.value) {
-    let arrayOfMatches = [];
-    for (let i = 0; i < passengersData.length; i++) {
-      Object.keys(passengersData[i]).map(key => {
-        if(`${passengersData[i][key]}`.indexOf(req.body.value.trim()) > -1) {
-          if(itemExists(arrayOfMatches, passengersData[i]) === false) {
-            arrayOfMatches.push(passengersData[i]);
-          }
-        }
-      });
-    }
-
-    res.send(arrayOfMatches);
-  } else {
-    res.send([]);
   }
 });
 
