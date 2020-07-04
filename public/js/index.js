@@ -111,7 +111,7 @@ window.addEventListener("scroll", async () => {
 document.getElementsByClassName('search__icon')[0].addEventListener('click', function() {
   searchInput.value = '';
   tbody.innerHTML = '';
-  renderPassengersData([], thNameArray, tbody, false);
+  renderPassengersData(passengersData, thNameArray, tbody);
 
   searching = false;
   loadingSearchData = true;
@@ -129,7 +129,7 @@ searchInput.addEventListener('input', function() {
  * parentElement - куда будут добавляться сформированные записи
  * addToPassengersArray - добавлять ли эти данные в массив с пассажирами
  */
-function renderPassengersData(data = [], thNameArray, tbody, addToPassengersArray) {
+function renderPassengersData(data = [], thNameArray, tbody, addToPassengersArray = false) {
   for (let i = 0; i < data.length; i++) {
     let tr = document.createElement('tr');
       tr.dataset.id = data[i].id;
@@ -204,7 +204,7 @@ async function renderSearchResults(value) {
   } else {
     if( tbody.children.length < passengersData.length ) {
       tbody.innerHTML = '';
-      renderPassengersData(passengersData, thNameArray, tbody, false);
+      renderPassengersData(passengersData, thNameArray, tbody);
     }
 
     searching = false;
