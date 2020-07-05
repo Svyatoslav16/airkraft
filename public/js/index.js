@@ -55,19 +55,8 @@ const thNameArray = [
   renderPassengersData(initialPassengers, thNameArray, tbody, true);
 
   /* Если размер окна идентичен или больше тела сайта, то подгружаем ещё данных - это самый простой способ, можно также добавить кнопку, 
-     но т.к. при скролле нет кнопки "Загрузить ещё", то, как по-мне, будет логичнее просто догрузить. Здесь по-хорошему нужно использовать рекурсию */
-  if(window.innerHeight >= document.body.offsetHeight) {
-    let passengersDataToAdd = await getPassengersData(tbody.children.length, 30);
-    
-    if(passengersDataToAdd.length > 0) {
-      renderPassengersData(
-        passengersDataToAdd,
-        thNameArray, 
-        tbody,
-        true
-      );
-    }
-  }
+     но т.к. при скролле нет кнопки "Загрузить ещё", то, как по-мне, будет логичнее просто догрузить. Использована простая рекурсия */
+  await loadingForLargeScreensRecursively();
 })();
 
 // Когда пользователь доскроллил до конца таблицы подгружаем ещё данные
@@ -93,7 +82,9 @@ window.addEventListener("scroll", async () => {
     searching === true &&
     loadingSearchData === true) {
     loadingSearchData = false;
-    let additionalData = await searchByValue(searchInput.value, tbody.children[tbody.children.length - 1].dataset.id, 20);
+    let additionalData = await searchByValue(searchInput.value, 
+                                            tbody.children[tbody.children.length - 1].dataset.id, 
+                                            20);
     
     if(additionalData.length > 0) {
       renderPassengersData(
@@ -235,4 +226,22 @@ async function searchByValue(value, startPosition = 0, numberOfRecords = 30) {
   });
 
   return searchResults;
+}
+
+/** Загрузка дополнительных данных для больших экранов */
+async function loadingForLargeScreensRecursively() {
+  if(window.innerHeight >= document.body.offsetHeight) {
+    let passengersDataToAdd = await getPassengersData(tbody.children.length, 10);
+      
+    if(passengersDataToAdd.length > 0) {
+      renderPassengersData(
+        passengersDataToAdd,
+        thNameArray, 
+        tbody,
+        true
+      );
+      
+      loadingForLargeScreensRecursively();
+    }
+  }
 }
